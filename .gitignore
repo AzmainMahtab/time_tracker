@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Build and Compilation
+dist/
+build/
+*.tsbuildinfo
+
+# Environment and Secrets
+.env
+.env.*
+!.env.example
+
+# Logs and Debugging
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+logs/
+
+# IDE and System files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
