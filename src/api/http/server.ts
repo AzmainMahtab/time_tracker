@@ -1,8 +1,12 @@
 import app from './app.js';
 import { config } from '../../config/env.js';
+import { runMigrations } from '../../infra/postgres/migrate.js';
 
 const start = async () => {
   try {
+    // run database migration at start time
+    await runMigrations();
+
     const server = app.listen(config.port, () => {
       console.log(`\n Server is live!`);
       console.log(`URL: http://localhost:${config.port}`);
