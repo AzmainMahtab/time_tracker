@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: time_tracker_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: ${DB_NAME:-time_tracker}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:8-alpine
+    container_name: time_tracker_redis
+    restart: always
+    command: ["redis-server", "--appendonly", "yes"] # Persistence for BullMQ
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:
