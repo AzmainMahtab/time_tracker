@@ -15,5 +15,10 @@ export const config = {
   redis: {
     host: process.env.REDIS_HOST || 'localhost',
     port: parseInt(process.env.REDIS_PORT || '6379', 10),
+  },
+  jwt: {
+    accessSecret: process.env.JWT_ACCESS_SECRET || 'dev_access_secret',
+    refreshSecret: process.env.JWT_REFRESH_SECRET || 'dev_refresh_secret',
+    refreshExpiry: '7d' // can be set to 30d based on your requirements
   }
 };
