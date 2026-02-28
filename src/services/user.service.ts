@@ -3,11 +3,14 @@ import { RegisterUserParams } from '../domains/user.perams.js';
 import { IHashPort } from '../ports/hash.port.js';
 import { IUserRepository } from '../ports/user.ports.js';
 import { IUserService } from '../ports/user.ports.js';
+import { ISecurityPort } from '../ports/jwt.port.js';
+import { TokenPair } from '../domains/auth.domain.js';
 
 export class UserService implements IUserService {
   constructor(
     private readonly userRepository: IUserRepository,
-    private readonly hashPort: IHashPort
+    private readonly hashPort: IHashPort,
+    private readonly securityPort: ISecurityPort
   ) { }
 
   // regiser a new user
@@ -28,6 +31,25 @@ export class UserService implements IUserService {
     });
 
     return await this.userRepository.save(newUser);
+  }
+
+
+  async login(email: string, pass: string, deviceId: string): Promise<TokenPair> {
+    const user = await this.userRepository.findByEmail(email)
+    if (!user) {
+      throw new Error('INVALID_CREDENTIALS')
+    }
+
+    const isPasswordValid = await this.hashPort.compare(pass, user.passwordHash)
+    if (!isPasswordValid) {
+      throw new Error('INVALID_CREDENTIALS')
+    }
+
+    return await this.securityPort.generatePair({
+      userId: user.uuid!,
+      email: user.email,
+      deviceId
+    })
   }
 
   //get the user profile

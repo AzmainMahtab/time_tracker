@@ -1,5 +1,6 @@
 import { User } from "../domains/user.domain.js";
 import { RegisterUserParams } from "../domains/user.perams.js";
+import { TokenPair } from "../domains/auth.domain.js";
 
 export interface IUserRepository {
   save(user: User): Promise<User>;
@@ -10,6 +11,7 @@ export interface IUserRepository {
 export interface IUserService {
   register(params: RegisterUserParams): Promise<User>;
   getProfile(userId: string): Promise<User>;
+  login(email: string, pass: string, deviceId: string): Promise<TokenPair>
 }
 
 

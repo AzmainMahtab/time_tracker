@@ -7,6 +7,7 @@ import { PostgresUserRepository } from '../../infra/postgres/user.repository.js'
 import { Argon2HashAdapter } from '../../secure/hash.adapter.js';
 import { UserService } from '../../services/user.service.js';
 import { createUserRouter } from './routes/user.routs.js';
+import { JwtAdapter } from '../../secure/jwt.adapter.js';
 
 const app: Application = express();
 
@@ -14,9 +15,10 @@ const app: Application = express();
 // Infra setup
 const userRepository = new PostgresUserRepository();
 const hashAdapter = new Argon2HashAdapter();
+const securityPort = new JwtAdapter()
 
 // Service setup
-const userService = new UserService(userRepository, hashAdapter);
+const userService = new UserService(userRepository, hashAdapter, securityPort);
 
 app.use(helmet());               // Secure HTTP headers
 app.use(hpp());                  // Prevent HTTP Parameter Pollution
