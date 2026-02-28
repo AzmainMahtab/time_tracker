@@ -24,3 +24,4 @@ export class User {
     this.updatedAt = props.updatedAt;
   }
 }
+
