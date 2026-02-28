@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import { UserController } from '../controllers/user.controller.js';
-import { IUserService } from '../../../ports/user.ports.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
 import { JwtAdapter } from '../../../secure/jwt.adapter.js';
 
@@ -11,7 +10,6 @@ export const createUserRouter = (controller: UserController): Router => {
 
   router.post('/register', controller.register);
   router.get('/:id', authMiddleware(securityPort), controller.getProfile);
-  router.post('/login', controller.login)
 
   return router;
 };

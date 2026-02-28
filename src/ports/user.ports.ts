@@ -11,7 +11,7 @@ export interface IUserRepository {
 export interface IUserService {
   register(params: RegisterUserParams): Promise<User>;
   getProfile(userId: string): Promise<User>;
-  login(email: string, pass: string, deviceId: string): Promise<TokenPair>
+  // login(email: string, pass: string, deviceId: string): Promise<TokenPair>
 }
 
 

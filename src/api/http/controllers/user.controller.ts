@@ -1,8 +1,6 @@
 import { Request, Response } from 'express';
 import { IUserService } from '../../../ports/user.ports.js';
 import { RegisterUserSchema } from '../dtos/user.dto.js';
-import { LoginSchema } from '../dtos/auth.dto.js';
-import { z } from 'zod';
 
 export class UserController {
   constructor(private readonly userService: IUserService) { }
@@ -34,43 +32,6 @@ export class UserController {
   };
 
 
-  login = async (req: Request, res: Response) => {
-    try {
-      // validate input using the login dto
-      const { email, password } = LoginSchema.parse(req.body)
-
-      // identify the device via header
-      const deviceId = req.headers['x-device-id'] as string || 'unknown-device'
-
-      const tokens = await this.userService.login(email, password, deviceId)
-
-      // set refresh token in secure http-only cookie
-      res.cookie('refreshToken', tokens.refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-      })
-
-      return res.status(200).json({
-        accessToken: tokens.accessToken
-      })
-    } catch (error: any) {
-      // handle zod validation errors
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({
-          error: 'Validation failed',
-          details: error.flatten().fieldErrors
-        })
-      }
-
-      if (error.message === 'INVALID_CREDENTIALS') {
-        return res.status(401).json({ error: 'Invalid email or password' })
-      }
-
-      return res.status(500).json({ error: 'Internal Server Error' })
-    }
-  }
   getProfile = async (req: Request, res: Response) => {
     try {
       const id = req.params.id as string

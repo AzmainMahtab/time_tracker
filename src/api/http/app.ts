@@ -28,7 +28,7 @@ const hashAdapter = new Argon2HashAdapter();
 const securityPort = new JwtAdapter()
 
 // Service setup
-const userService = new UserService(userRepository, hashAdapter, securityPort);
+const userService = new UserService(userRepository, hashAdapter);
 const authService = new AuthService(userRepository, sessionRepository, cacheRepository, securityPort, hashAdapter);
 
 app.use(helmet());               // Secure HTTP headers
