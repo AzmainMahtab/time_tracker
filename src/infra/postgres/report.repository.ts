@@ -1,8 +1,19 @@
-import { Pool } from 'pg';
 import { IReportRepository } from '../../ports/report.port.js';
+import * as defaultPool from './pool.js';
+
+
+interface IDatabase {
+  query: (text: string, params?: any[]) => Promise<any>;
+}
+
 
 export class PostgresReportRepository implements IReportRepository {
-  constructor(private readonly db: Pool) { }
+  private readonly db: IDatabase;
+
+  // If no db is provided, it defaults to the production pool.
+  constructor(db: IDatabase = defaultPool) {
+    this.db = db;
+  }
 
   async getAppTotals(userId: number, date: string, tz: string): Promise<any[]> {
     const query = `

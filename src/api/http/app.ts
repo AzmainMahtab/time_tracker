@@ -23,6 +23,10 @@ import { usageRoutes } from './routes/usage.routs.js';
 import { usageQueue } from '../../infra/bullmq/connection.js';
 import { UsageWorker } from '../../infra/bullmq/usage.workers.js';
 
+import { PostgresReportRepository } from '../../infra/postgres/report.repository.js';
+import { ReportService } from '../../services/report.sercie.js';
+import { ReportController } from './controllers/report.controller.js';
+import { reportRoutes } from './routes/report.routs.js';
 
 const app: Application = express();
 app.use(cookieParser())
@@ -34,11 +38,13 @@ const cacheRepository = new RedisCacheRepository();
 const hashAdapter = new Argon2HashAdapter();
 const securityPort = new JwtAdapter()
 const usageRepository = new UsageRepository();
+const reportRepository = new PostgresReportRepository();
 
 // Service setup
 const userService = new UserService(userRepository, hashAdapter);
 const authService = new AuthService(userRepository, sessionRepository, cacheRepository, securityPort, hashAdapter);
 const usageService = new UsageService(usageRepository);
+const reportService = new ReportService(reportRepository);
 
 //workers
 new UsageWorker(usageService);
@@ -56,6 +62,8 @@ app.use('/api/v1/users', createUserRouter(new UserController(userService)));
 app.use('/api/v1/auth', authRoutes(new AuthController(authService)));
 
 app.use('/api/v1/usage', usageRoutes(new UsageController(usageQueue)));
+
+app.use('/api/v1/report', reportRoutes(new ReportController(reportService)));
 
 // Health Check / Root
 app.get('/', (req: Request, res: Response) => {
