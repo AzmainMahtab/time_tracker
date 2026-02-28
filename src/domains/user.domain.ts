@@ -1,5 +1,5 @@
 export interface UserProps {
-  id?: string;
+  uuid?: string;
   email: string;
   passwordHash: string;
   fullName?: string;
@@ -8,7 +8,7 @@ export interface UserProps {
 }
 
 export class User {
-  public readonly id?: string;
+  public readonly uuid?: string;
   public readonly email: string;
   public readonly passwordHash: string;
   public readonly fullName?: string;
@@ -16,7 +16,7 @@ export class User {
   public readonly updatedAt?: Date;
 
   constructor(props: UserProps) {
-    this.id = props.id;
+    this.uuid = props.uuid;
     this.email = props.email;
     this.passwordHash = props.passwordHash;
     this.fullName = props.fullName;
