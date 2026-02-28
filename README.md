@@ -1,4 +1,3 @@
-### This is a project that 
 ## Overview ##
 This project is a high-performance **Time Tracking API** designed to ingest, process, and report on application usage data in real-time. Built to handle the "high-frequency ping" nature of desktop trackers (which send updates every few seconds), the system utilizes an asynchronous processing pipeline to ensure the API remains responsive while maintaining high data integrity. Also controll multi device authentication, session managment and chaching.
 
