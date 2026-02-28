@@ -87,7 +87,7 @@ describe('AuthService', () => {
       const result = await service.refresh(oldToken)
 
       expect(result.accessToken).toBe('new-a')
-      expect(cacheRepo.setBlacklist).toHaveBeenCalledWith('signature', 3600)
+      expect(cacheRepo.setBlacklist).toHaveBeenCalledWith('signature', 604800000)
     })
   })
 
