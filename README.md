@@ -6,6 +6,7 @@ This project is a high-performance **Time Tracking API** designed to ingest, pro
 ## Architectural Philosophy ##
 
 This project was made using **Hexagonal** structure to keep a strict separation between business rules and side effects.  **Domain-Driven Design (DDD)** adherence to the core business logic was enforced. The domain becomes the source of truth not the database schema. 
+The ports and adapter approach lets everyting to be mocked. This way unit testing becomes a breeze. 
 
 ### Dependency rule ###
 
@@ -23,7 +24,7 @@ With dependency inversion all the dependencies only flow inward. The domain laye
 **Core Libraries**
 
 | Libraries | Purpose |
-|-----------|---------|
+|-----------|---------|------|
 |Express        |Routing  |
 |Zod  |DTO Validation| 
 |pg        |Postgres Drover| 
@@ -42,6 +43,15 @@ With dependency inversion all the dependencies only flow inward. The domain laye
 ┌─────────┐   JSON    ┌─────────────┐  Domain ┌──────▼──────┐
 │ Client  │◄──────────┤ Controllers │◄────────┤ Repositories│
 └─────────┘   (DTO)   └─────────────┘  Models └─────────────┘
+```
+## Run Project
+```
+# Run project with docker
+docker compose up --build
+
+# Run test
+npm run test
+npm run test:watch
 ```
 
 ## Folder structure
