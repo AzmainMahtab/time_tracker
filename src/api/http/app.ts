@@ -1,4 +1,4 @@
-import express, { Application, Request, Response, NextFunction } from 'express';
+import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import hpp from 'hpp';
@@ -11,18 +11,22 @@ import { createUserRouter } from './routes/user.routs.js';
 import { JwtAdapter } from '../../secure/jwt.adapter.js';
 import { RedisCacheRepository } from '../../infra/redis/redis.respository.js';
 import { AuthService } from '../../services/auth.service.js';
+import { authRoutes } from './routes/auth.routs.js';
+import { AuthController } from './controllers/auth.controller.js';
 
 const app: Application = express();
 
 
 // Infra setup
 const userRepository = new PostgresUserRepository();
+const sessionRepository = new PostgresSessionRepository();
+const cacheRepository = new RedisCacheRepository();
 const hashAdapter = new Argon2HashAdapter();
 const securityPort = new JwtAdapter()
 
 // Service setup
 const userService = new UserService(userRepository, hashAdapter, securityPort);
-const authService = new Au
+const authService = new AuthService(userRepository, sessionRepository, cacheRepository, securityPort, hashAdapter);
 
 app.use(helmet());               // Secure HTTP headers
 app.use(hpp());                  // Prevent HTTP Parameter Pollution
@@ -33,7 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // routs
 app.use('/api/v1/users', createUserRouter(userService));
-
+app.use('/api/v1/auth', authRoutes(new AuthController(authService)));
 
 // Health Check / Root
 app.get('/', (req: Request, res: Response) => {
