@@ -34,6 +34,7 @@ The tracker pings the API with tracking data everyfew seconds. To ensure the API
 |pg        |Postgres Drover| 
 |redis   |Redis client library|
 |dotenv   |ENV management | 
+|bullMQ   |Job queue for async processing|
 
 ## Data flow
 ```
