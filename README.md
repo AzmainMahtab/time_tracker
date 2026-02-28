@@ -1,3 +1,4 @@
+
 ## Overview ##
 This project is a high-performance **Time Tracking API** designed to ingest, process, and report on application usage data in real-time. Built to handle the "high-frequency ping" nature of desktop trackers (which send updates every few seconds), the system utilizes an asynchronous processing pipeline to ensure the API remains responsive while maintaining high data integrity. Also controll multi device authentication, session managment and chaching.
 
@@ -22,7 +23,7 @@ With dependency inversion all the dependencies only flow inward. The domain laye
 **Core Libraries**
 
 | Libraries | Purpose |
-|-----------|---------|
+|-----------|---------|------|
 |Express        |Routing  |
 |Zod  |DTO Validation| 
 |pg        |Postgres Drover| 
@@ -212,4 +213,38 @@ ORDER BY duration DESC;
 * **`GROUP BY app_name`**: Collapses potentially hundreds of "pings" into a single summarized row per application.
 * Exactly the same steatergy is applied for **`GROUP BY domain`**
 
-mimics a time tracker backend ##
+## Scaling Strategy & Architectural Evolution
+
+To handle millions of "pings" per minute from a global user base, the system scales horizontally across three distinct layers.
+
+### Ingestion Scaling
+The **API Layer** is intentionally "thin." It does not perform database IO.
+* **Horizontal Scaling:** We can deploy multiple instances of the Express API behind a **Load Balancer** (Nginx/AWS ELB).
+* **Backpressure Management:** By moving pings (usage/track) directly into **Redis**, the API can respond in `<10ms`, even if the database is under heavy load.
+* **Statelessness:** Since authentication is handled via JWT, any API node can handle any request.
+
+### Processing Scaling 
+The **Worker Layer** (BullMQ) handles the "heavy lifting" (Domain logic, URL normalization, and DB Merging).
+* **Parallel Workers:** We can spin up dozens of worker containers across different servers. BullMQ ensures that a job is only processed once. For even bigger thrpughput handleing we can use Apache Kafka
+* **Concurrency Control:** We limit the number of concurrent jobs per worker to prevent CPU exhaustion during URL parsing or complex merging logic.
+* **Job Prioritization:** We can separate "Real-time Tracking" jobs from "Report Generation" jobs into different Redis queues to ensure tracking never lags.
+
+
+### Storage Scaling
+PostgreSQL is usually the first bottleneck. We solve this using three specific techniques:
+
+#### Read/Write Splitting
+We can use a **Primary Database** for writes (inserts from Workers) and multiple **Read Replicas** for generating reports. This ensures that a heavy user generating a yearly report doesn't slow down the tracking pings of other users.
+
+#### Table Partitioning
+As the `app_usage` table reaches hundreds of millions of rows, we implement **Range Partitioning** by month.
+* **Benefit:** When a user queries a report for `2026-03-01`, Postgres only searches the "March 2026" partition, ignoring billions of rows from previous years.
+* **Maintenance:** Old data (e.g., from 3 years ago) can be archived or dropped instantly by dropping a partition.
+
+#### Connection Pooling
+We use **PgBouncer** to manage thousands of database connections from our distributed workers, preventing the "Too many clients" error.
+
+
+
+---
+
