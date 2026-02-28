@@ -6,9 +6,8 @@ import { JwtAdapter } from '../../../secure/jwt.adapter.js';
 
 const securityPort = new JwtAdapter()
 
-export const createUserRouter = (userService: IUserService): Router => {
+export const createUserRouter = (controller: UserController): Router => {
   const router = Router();
-  const controller = new UserController(userService);
 
   router.post('/register', controller.register);
   router.get('/:id', authMiddleware(securityPort), controller.getProfile);

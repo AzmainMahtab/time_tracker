@@ -2,6 +2,7 @@ import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import hpp from 'hpp';
+import cookieParser from 'cookie-parser'
 
 import { PostgresUserRepository } from '../../infra/postgres/user.repository.js';
 import { PostgresSessionRepository } from '../../infra/postgres/session.repository.js';
@@ -13,9 +14,11 @@ import { RedisCacheRepository } from '../../infra/redis/redis.respository.js';
 import { AuthService } from '../../services/auth.service.js';
 import { authRoutes } from './routes/auth.routs.js';
 import { AuthController } from './controllers/auth.controller.js';
+import { UserController } from './controllers/user.controller.js';
+
 
 const app: Application = express();
-
+app.use(cookieParser())
 
 // Infra setup
 const userRepository = new PostgresUserRepository();
@@ -36,7 +39,8 @@ app.use(express.urlencoded({ extended: true }));
 
 
 // routs
-app.use('/api/v1/users', createUserRouter(userService));
+app.use('/api/v1/users', createUserRouter(new UserController(userService)));
+
 app.use('/api/v1/auth', authRoutes(new AuthController(authService)));
 
 // Health Check / Root
