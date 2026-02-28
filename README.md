@@ -12,6 +12,10 @@ The ports and adapter approach lets everyting to be mocked. This way unit testin
 
 With dependency inversion all the dependencies only flow inward. The domain layer is plain TypeScript, with no dependency with no third-party libraries. So the business logic is more or less "immortal". All the frameworks may change overtime and the implementations may have breaking changes but that doesn't affect the core business logic. Also allows a plug and play like nature where any component of the project can be switched without disrupting the main business logic. 
 
+### API Ingestion 
+
+The tracker pings the API with tracking data everyfew seconds. To ensure the API can handle this high-frequency data without bottlenecks, we used **BullMQ** which relayes to **Redis** . The API simply pushes incoming pings into BullMQ workers who just return a status `assepted 202` and responds immediately, while the service handles the logic of concurrent pings and separate .
+
 ## Technology ##
 
 <p align="left">
@@ -24,7 +28,7 @@ With dependency inversion all the dependencies only flow inward. The domain laye
 **Core Libraries**
 
 | Libraries | Purpose |
-|-----------|---------|------|
+|-----------|---------|
 |Express        |Routing  |
 |Zod  |DTO Validation| 
 |pg        |Postgres Drover| 
