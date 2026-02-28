@@ -1,4 +1,5 @@
 export class AppUsage {
+  readonly id: number;
   readonly userId: number;
   readonly appName: string;
   readonly url?: string;
@@ -7,6 +8,7 @@ export class AppUsage {
   readonly endTime: Date;
 
   constructor(props: Partial<AppUsage>) {
+    this.id = props.id!;
     this.userId = props.userId!;
     this.appName = props.appName!;
     this.url = props.url;

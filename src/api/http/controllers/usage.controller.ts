@@ -1,18 +1,22 @@
+// src/api/http/controllers/usage.controller.ts
+
 import { Request, Response } from 'express';
-import { usageQueue } from '../../../infra/bullmq/connection.js';
+import { Queue } from 'bullmq'; // lowercase comments: import the type for the constructor
 
 export class UsageController {
-  async trackUsage(req: Request, res: Response) {
+  constructor(private readonly usageQueue: Queue) { }
+
+  trackUsage = async (req: Request, res: Response) => {
     try {
-      // push the raw payload to the queue for background processing 
-      await usageQueue.add('process-ping', req.body, {
-        attempts: 3, // retry 3 times on failure for crash recovery 
+      await this.usageQueue.add('process-ping', req.body, {
+        attempts: 3,
         backoff: 1000,
       });
 
-      // return 202 accepted as the data is being processed 
+      // 202 accepted
       return res.status(202).json({ status: 'queued' });
     } catch (error) {
+      // error if redis or bullmq is unreachable
       return res.status(500).json({ error: 'failed to queue usage' });
     }
   }

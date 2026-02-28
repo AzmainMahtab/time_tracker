@@ -9,6 +9,7 @@ const start = async () => {
     await runMigrations();
     await connectRedis();
 
+
     const server = app.listen(config.port, () => {
       console.log(`\n Server is live!`);
       console.log(`URL: http://localhost:${config.port}`);

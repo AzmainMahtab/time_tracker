@@ -1,9 +1,20 @@
-import { Pool } from 'pg';
+import * as defaultPool from './pool.js';
 import { AppUsage } from '../../domains/usage.domain.js';
 import { IUsageRepository } from '../../ports/usage.port.js';
 
+interface IDatabase {
+  query: (text: string, params?: any[]) => Promise<any>;
+}
+
+
 export class UsageRepository implements IUsageRepository {
-  constructor(private readonly db: Pool) { }
+  // We store the connection here
+  private readonly db: IDatabase;
+
+  // If no db is provided, it defaults to the production pool.
+  constructor(db: IDatabase = defaultPool) {
+    this.db = db;
+  }
 
   async findLatest(userId: number): Promise<any | null> {
     // get the last tracked session for this user to check for merging 

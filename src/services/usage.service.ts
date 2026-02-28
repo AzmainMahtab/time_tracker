@@ -13,30 +13,35 @@ export class UsageService implements IUsagePort {
       endTime: new Date(payload.end_time)
     });
 
-    // fetch the latest session from postgres to check for merging possibilities 
     const lastSession = await this.repo.findLatest(newUsage.userId);
 
-    // logic to determine if we should merge with the previous record 
-    if (lastSession &&
-      lastSession.appName === newUsage.appName &&
-      lastSession.domain === newUsage.domain) {
-
-      // parse dates to compare the gap between pings 
+    if (lastSession) {
+      const lastStart = new Date(lastSession.startTime).getTime();
       const lastEnd = new Date(lastSession.endTime).getTime();
       const nextStart = newUsage.startTime.getTime();
+      const nextEnd = newUsage.endTime.getTime();
 
-      // calculate the gap in seconds; we allow a 30 second threshold for consecutive sessions
-      const gapSeconds = (nextStart - lastEnd) / 1000;
+      //  exact duplicate or complete overlap
+      // if the new ping starts exactly when the last one did, just update the end time
+      if (lastStart === nextStart) {
+        if (nextEnd > lastEnd) {
+          return await this.repo.updateEndTime(lastSession.id, newUsage.endTime);
+        }
+        return; //  it is an old or duplicate ping, ignore it
+      }
 
-      // if the gap is within the threshold, we update the existing row instead of inserting 
-      if (gapSeconds >= 0 && gapSeconds <= 30) {
-        // update only the end_time to merge the session 
-        return await this.repo.updateEndTime(lastSession.userId, newUsage.endTime);
+      // consecutive session merging
+      if (lastSession.appName === newUsage.appName && lastSession.domain === newUsage.domain) {
+        const gapSeconds = (nextStart - lastEnd) / 1000;
+
+        // if gap is 0-30 seconds, extend the session
+        if (gapSeconds >= 0 && gapSeconds <= 30) {
+          return await this.repo.updateEndTime(lastSession.id, newUsage.endTime);
+        }
       }
     }
 
-    // if no match is found or the gap is too large, create a new record 
-    // this insertion respects our tstzrange exclusion constraint 
+    // if we reach here, it is a genuinely new, non-overlapping session
     await this.repo.save(newUsage);
   }
 }

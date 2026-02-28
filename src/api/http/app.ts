@@ -16,6 +16,13 @@ import { authRoutes } from './routes/auth.routs.js';
 import { AuthController } from './controllers/auth.controller.js';
 import { UserController } from './controllers/user.controller.js';
 
+import { UsageRepository } from '../../infra/postgres/usage.repository.js';
+import { UsageService } from '../../services/usage.service.js';
+import { UsageController } from './controllers/usage.controller.js';
+import { usageRoutes } from './routes/usage.routs.js';
+import { usageQueue } from '../../infra/bullmq/connection.js';
+import { UsageWorker } from '../../infra/bullmq/usage.workers.js';
+
 
 const app: Application = express();
 app.use(cookieParser())
@@ -26,10 +33,15 @@ const sessionRepository = new PostgresSessionRepository();
 const cacheRepository = new RedisCacheRepository();
 const hashAdapter = new Argon2HashAdapter();
 const securityPort = new JwtAdapter()
+const usageRepository = new UsageRepository();
 
 // Service setup
 const userService = new UserService(userRepository, hashAdapter);
 const authService = new AuthService(userRepository, sessionRepository, cacheRepository, securityPort, hashAdapter);
+const usageService = new UsageService(usageRepository);
+
+//workers
+new UsageWorker(usageService);
 
 app.use(helmet());               // Secure HTTP headers
 app.use(hpp());                  // Prevent HTTP Parameter Pollution
@@ -42,6 +54,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/v1/users', createUserRouter(new UserController(userService)));
 
 app.use('/api/v1/auth', authRoutes(new AuthController(authService)));
+
+app.use('/api/v1/usage', usageRoutes(new UsageController(usageQueue)));
 
 // Health Check / Root
 app.get('/', (req: Request, res: Response) => {
