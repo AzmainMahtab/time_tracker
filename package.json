@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "tsx watch src/api/http/server.ts",
     "build": "tsc",
-    "start": "node dist/api/http/server.js"
+    "start": "node dist/api/http/server.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui"
   },
   "keywords": [],
   "author": "",
