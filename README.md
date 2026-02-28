@@ -23,7 +23,7 @@ With dependency inversion all the dependencies only flow inward. The domain laye
 **Core Libraries**
 
 | Libraries | Purpose |
-|-----------|---------|------|
+|-----------|---------|
 |Express        |Routing  |
 |Zod  |DTO Validation| 
 |pg        |Postgres Drover| 
