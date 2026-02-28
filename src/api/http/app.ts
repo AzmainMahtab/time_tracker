@@ -4,10 +4,13 @@ import helmet from 'helmet';
 import hpp from 'hpp';
 
 import { PostgresUserRepository } from '../../infra/postgres/user.repository.js';
+import { PostgresSessionRepository } from '../../infra/postgres/session.repository.js';
 import { Argon2HashAdapter } from '../../secure/hash.adapter.js';
 import { UserService } from '../../services/user.service.js';
 import { createUserRouter } from './routes/user.routs.js';
 import { JwtAdapter } from '../../secure/jwt.adapter.js';
+import { RedisCacheRepository } from '../../infra/redis/redis.respository.js';
+import { AuthService } from '../../services/auth.service.js';
 
 const app: Application = express();
 
@@ -19,6 +22,7 @@ const securityPort = new JwtAdapter()
 
 // Service setup
 const userService = new UserService(userRepository, hashAdapter, securityPort);
+const authService = new Au
 
 app.use(helmet());               // Secure HTTP headers
 app.use(hpp());                  // Prevent HTTP Parameter Pollution
