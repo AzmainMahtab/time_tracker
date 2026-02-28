@@ -5,6 +5,7 @@ import { ISecurityPort } from '../ports/jwt.port.js'
 import { IHashPort } from '../ports/hash.port.js'
 import { IUserRepository } from '../ports/user.ports.js'
 import { Session, TokenPair } from '../domains/auth.domain.js'
+import { config } from '../config/env.js'
 
 export class AuthService implements IAuthPort {
   constructor(
@@ -64,7 +65,7 @@ export class AuthService implements IAuthPort {
     const newHash = await this.hashPort.hash(newTokens.refreshToken)
 
     await this.sessionRepo.save(new Session({ ...session, tokenHash: newHash }))
-    await this.cacheRepo.setBlacklist(signature, 3600) // TTL depends on remaining token life
+    await this.cacheRepo.setBlacklist(signature, 604800000) // TTL depends on remaining token life
 
     return newTokens
   }
