@@ -30,7 +30,7 @@ const start = async () => {
 
     // catch errors that happen outside of the express flow
     process.on('unhandledRejection', (err) => {
-      console.error('UNHANDLED REJECTION! 💥');
+      console.error('UNHANDLED REJECTION!');
       console.error(err);
       process.exit(1);
     });
